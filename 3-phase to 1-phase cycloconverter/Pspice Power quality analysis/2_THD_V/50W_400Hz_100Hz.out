@@ -1,0 +1,287 @@
+
+**** 11/15/21 19:14:11 ******* PSpice 17.4.0 (Nov 2018) ******* ID# 0 ********
+
+ Proyecto_Laboratorio_Electronica_Potencia
+
+
+ ****     CIRCUIT DESCRIPTION
+
+
+******************************************************************************
+
+
+
+ *Cliclo convertidor Trifásico - Monofásico
+ *Estudiantes:
+                *Jose Fabio Navarro Naranjo 2019049626
+                *Emmanuel Naranjo Blanco   2019053605
+                *Adrian Dittel Retana             2019007945
+ 
+*Definicion de parametros para la simulacion del circuito
+
+*Entradas
+.param V_in={120};  *Tension RMS de entrada por fase
+.param f_in={400} ; *Frecuencia de entrada (entre 120Hz y 400Hz)
+.param f_out={100} ;*Frecuencia de salida (entre 30Hz y 100Hz))
+.param alfa={131}; *Angulo de disparo
+.param carga={288} ;*carga a alimentar (resistiva)
+
+*Derivaciones de las entradas
+.param V_pico={V_in*sqrt(2)}; *Tension pico en la entrada
+.param delay_p={alfa/(360*f_in)}; *Delay para la fase P
+.param delay_n={(periodo_in/2)+delay_p}; *Delay para la fase N
+.param pw={1/(3*f_in)}; *Tiempo en alto del pulso para activar los SCR (pulse width) 
+.param periodo_in={1/f_in}; *Periodo de la seal de entrada
+.param periodo_out={1/f_out}; *Periodo de la seal de salida
+.param pw_pn={0.5*periodo_out}; *Tiempo en alto de las seales p y n
+
+*Definicion de las entradas de fase 
+Van 1 0 Sin(0 {V_pico} {f_in} 0 0 -30); *fase A
+Vbn 2 0 Sin(0 {V_pico} {f_in} 0 0 -150); *fase B
+Vcn 3 0 Sin(0 {V_pico} {f_in} 0 0 -270); *fase C
+
+*Componentes del circuito
+
+*Para la implemetacion de los SCR se van a utilizar diodos en combinacion con switches que en conjunto simulan el comportamiento deseado
+
+*P Converter (Switches y Diodos)
+
+sw1p 1 4 18 0 smod
+dio1p 4 5 dmod
+
+sw3p 2 6 19 0 smod
+dio3p 6 5 dmod
+
+sw5p 3 7 20 0 smod
+dio5p 7 5 dmod
+
+sw2p 8 9 21 0 smod
+dio2p 9 1 dmod
+
+sw4p 8 10 22 0 smod
+dio4p 10 2 dmod
+
+sw6p 8 11 23 0 smod
+dio6p 11 3 dmod
+
+*N Converter (Switches y Diodos)
+
+sw1n 5 12 24 0 smod
+dio1n 12 1 dmod
+
+sw3n 5 13 25 0 smod
+dio3n 13 2 dmod
+
+sw5n 5 14 26 0  smod
+dio5n 14 3 dmod
+
+sw2n 1 15 27 0 smod
+dio2n 15 8 dmod
+
+sw4n 2 16 28 0 smod
+dio4n 16 8 dmod
+
+sw6n 3 17 29 0 smod
+dio6n 17 8 dmod
+
+*Carga
+r_load 5 8 {carga} 
+
+*Control para los switches
+
+*Control P
+
+v1p 18 30 pulse(-5 5 {delay_p} 1ns 1ns {pw} {periodo_in})
+v3p 19 30 pulse(-5 5 {delay_p + periodo_in/3} 1ns 1ns {pw} {periodo_in})
+v5p 20 30 pulse(-5 5 {delay_p + 2*periodo_in/3} 1ns 1ns {pw} {periodo_in})
+v2p 21 30 pulse(-5 5 {delay_p + periodo_in/2} 1ns 1ns {pw} {periodo_in})
+v4p 22 30 pulse(-5 5 {delay_p + 5*periodo_in/6} 1ns 1ns {pw} {periodo_in})
+v6p 23 30 pulse(-5 5 {delay_p + periodo_in/6} 1ns 1ns {pw} {periodo_in})
+
+vc_p 30 0 pulse(5 -5 0 1ns 1ns {pw_pn} {periodo_out}); *fuente para controlar la fase P
+
+*Control N
+
+v1n 24 31 pulse(-5 5 {delay_n} 1ns 1ns {pw} {periodo_in})
+v3n 25 31 pulse(-5 5 {delay_n + periodo_in/3} 1ns 1ns {pw} {periodo_in})
+v5n 26 31 pulse(-5 5 {delay_n + 2*periodo_in/3} 1ns 1ns {pw} {periodo_in})
+v2n 27 31 pulse(-5 5 {delay_n + periodo_in/2} 1ns 1ns {pw} {periodo_in})
+v4n 28 31 pulse(-5 5 {delay_n + 5*periodo_in/6} 1ns 1ns {pw} {periodo_in})
+v6n 29 31 pulse(-5 5 {delay_n + periodo_in/6} 1ns 1ns {pw} {periodo_in})
+
+vc_n 31 0 pulse(5 -5 {periodo_out/2} 1ns 1ns {pw_pn} {periodo_out}); *fuente para controlar la fase N
+
+.model smod VSWITCH(Ron=0.001m)
+.model dmod d
+.tran .1ms 400ms 0ms .1ms uic
+.FOUR 100 30 I(Van) V(5,8)
+*I(Van) 
+*V(5,8)
+.probe
+.end
+
+**** 11/15/21 19:14:11 ******* PSpice 17.4.0 (Nov 2018) ******* ID# 0 ********
+
+ Proyecto_Laboratorio_Electronica_Potencia
+
+
+ ****     Diode MODEL PARAMETERS
+
+
+******************************************************************************
+
+
+
+
+               dmod            
+          IS   10.000000E-15 
+
+
+**** 11/15/21 19:14:11 ******* PSpice 17.4.0 (Nov 2018) ******* ID# 0 ********
+
+ Proyecto_Laboratorio_Electronica_Potencia
+
+
+ ****     Voltage Controlled Switch MODEL PARAMETERS
+
+
+******************************************************************************
+
+
+
+
+               smod            
+         RON    1.000000E-06 
+        ROFF    1.000000E+06 
+         VON    1            
+        VOFF    0            
+
+
+**** 11/15/21 19:14:11 ******* PSpice 17.4.0 (Nov 2018) ******* ID# 0 ********
+
+ Proyecto_Laboratorio_Electronica_Potencia
+
+
+ ****     FOURIER ANALYSIS                 TEMPERATURE =   27.000 DEG C
+
+
+******************************************************************************
+
+
+
+FOURIER COMPONENTS OF TRANSIENT RESPONSE I(Van)
+
+
+
+ DC COMPONENT =   2.8722E-02
+
+ HARMONIC   FREQUENCY     FOURIER     NORMALIZED     PHASE     NORMALIZED
+    NO         (HZ)      COMPONENT     COMPONENT     (DEG)     PHASE (DEG)
+
+     1    1.0000E+02   1.2393E-06   1.0000E+00  -1.1504E+02   0.0000E+00
+     2    2.0000E+02   1.7770E-06   1.4339E+00  -1.4812E+02   8.1962E+01
+     3    3.0000E+02   3.3975E-06   2.7414E+00  -1.7121E+02   1.7391E+02
+     4    4.0000E+02   3.6171E-01   2.9186E+05   9.0214E+01   5.5037E+02
+     5    5.0000E+02   2.3435E-06   1.8909E+00  -2.2440E+01   5.5276E+02
+     6    6.0000E+02   7.0078E-07   5.6545E-01  -2.8338E+01   6.6190E+02
+     7    7.0000E+02   2.2498E-07   1.8153E-01   2.4338E+01   8.2962E+02
+     8    8.0000E+02   3.1841E-02   2.5692E+04   1.2745E+02   1.0478E+03
+     9    9.0000E+02   7.1215E-07   5.7462E-01   1.0670E+02   1.1421E+03
+    10    1.0000E+03   9.4069E-07   7.5903E-01   8.7061E+01   1.2375E+03
+    11    1.1000E+03   1.1769E-06   9.4959E-01   7.1379E+01   1.3368E+03
+    12    1.2000E+03   1.9517E-02   1.5748E+04   5.2547E+01   1.4330E+03
+    13    1.3000E+03   1.3573E-06   1.0952E+00   5.6785E+01   1.5523E+03
+    14    1.4000E+03   1.5717E-06   1.2682E+00   4.1474E+01   1.6520E+03
+    15    1.5000E+03   1.8223E-06   1.4704E+00   2.7070E+01   1.7527E+03
+    16    1.6000E+03   2.7449E-02   2.2148E+04  -1.9423E+01   1.8212E+03
+    17    1.7000E+03   1.7333E-06   1.3986E+00   1.0594E+01   1.9663E+03
+    18    1.8000E+03   2.1188E-06   1.7097E+00  -4.6575E+00   2.0661E+03
+    19    1.9000E+03   2.9106E-06   2.3485E+00  -1.9598E+01   2.1662E+03
+    20    2.0000E+03   2.1188E-01   1.7096E+05  -7.4758E+01   2.2260E+03
+    21    2.1000E+03   3.5229E-07   2.8426E-01   5.0774E+01   2.4666E+03
+    22    2.2000E+03   7.0884E-07   5.7195E-01  -3.4675E+01   2.4962E+03
+    23    2.3000E+03   7.7452E-07   6.2495E-01  -5.3313E+01   2.5926E+03
+    24    2.4000E+03   6.3911E-02   5.1569E+04   1.3001E+01   2.7740E+03
+    25    2.5000E+03   1.5200E-06   1.2265E+00  -8.2827E+01   2.7932E+03
+    26    2.6000E+03   1.3829E-06   1.1158E+00  -9.4370E+01   2.8967E+03
+    27    2.7000E+03   1.3642E-06   1.1008E+00  -1.0167E+02   3.0044E+03
+    28    2.8000E+03   1.4502E-01   1.1702E+05  -5.6182E+01   3.1649E+03
+    29    2.9000E+03   1.2601E-06   1.0168E+00  -1.6311E+02   3.1730E+03
+    30    3.0000E+03   1.1926E-06   9.6230E-01  -1.7441E+02   3.2768E+03
+
+
+     TOTAL HARMONIC DISTORTION =   3.6354E+07 PERCENT
+
+**** 11/15/21 19:14:11 ******* PSpice 17.4.0 (Nov 2018) ******* ID# 0 ********
+
+ Proyecto_Laboratorio_Electronica_Potencia
+
+
+ ****     FOURIER ANALYSIS                 TEMPERATURE =   27.000 DEG C
+
+
+******************************************************************************
+
+
+
+FOURIER COMPONENTS OF TRANSIENT RESPONSE V(5,8)
+
+
+
+ DC COMPONENT =  -2.2959E-03
+
+ HARMONIC   FREQUENCY     FOURIER     NORMALIZED     PHASE     NORMALIZED
+    NO         (HZ)      COMPONENT     COMPONENT     (DEG)     PHASE (DEG)
+
+     1    1.0000E+02   1.2086E+02   1.0000E+00  -1.7764E+02   0.0000E+00
+     2    2.0000E+02   2.4445E-03   2.0226E-05  -7.9302E+01   2.7598E+02
+     3    3.0000E+02   3.2972E+01   2.7282E-01  -1.6817E+02   3.6475E+02
+     4    4.0000E+02   2.8906E-03   2.3917E-05  -7.8328E+01   6.3224E+02
+     5    5.0000E+02   3.8425E+01   3.1793E-01  -1.7653E+02   7.1168E+02
+     6    6.0000E+02   3.2291E-03   2.6718E-05  -8.2399E+01   9.8345E+02
+     7    7.0000E+02   2.7581E+01   2.2821E-01  -1.6316E+02   1.0803E+03
+     8    8.0000E+02   3.2755E-03   2.7102E-05  -8.8558E+01   1.3326E+03
+     9    9.0000E+02   1.7055E+01   1.4111E-01   1.6515E+02   1.7639E+03
+    10    1.0000E+03   3.1289E-03   2.5888E-05  -9.1324E+01   1.6851E+03
+    11    1.1000E+03   1.8856E+01   1.5602E-01   1.7380E+02   2.1279E+03
+    12    1.2000E+03   2.9582E-03   2.4476E-05  -9.0941E+01   2.0408E+03
+    13    1.3000E+03   8.8307E+00   7.3066E-02  -1.4541E+02   2.1639E+03
+    14    1.4000E+03   3.0431E-03   2.5179E-05  -8.8618E+01   2.3984E+03
+    15    1.5000E+03   7.4251E+00   6.1435E-02  -1.6996E+02   2.4947E+03
+    16    1.6000E+03   3.1548E-03   2.6103E-05  -9.0069E+01   2.7522E+03
+    17    1.7000E+03   2.0238E+01   1.6745E-01  -1.4254E+02   2.8774E+03
+    18    1.8000E+03   3.2888E-03   2.7212E-05  -9.4624E+01   3.1029E+03
+    19    1.9000E+03   2.0055E+01   1.6594E-01  -1.2720E+02   3.2480E+03
+    20    2.0000E+03   2.9831E-03   2.4682E-05  -9.9820E+01   3.4530E+03
+    21    2.1000E+03   2.8926E+01   2.3934E-01  -1.7203E+02   3.5584E+03
+    22    2.2000E+03   2.6727E-03   2.2114E-05  -1.0256E+02   3.8056E+03
+    23    2.3000E+03   6.3207E+01   5.2298E-01  -1.5468E+02   3.9311E+03
+    24    2.4000E+03   1.8032E-03   1.4920E-05  -8.0134E+01   4.1833E+03
+    25    2.5000E+03   4.7561E+01   3.9352E-01   2.8295E+01   4.4693E+03
+    26    2.6000E+03   2.2722E-03   1.8800E-05  -8.3715E+01   4.5350E+03
+    27    2.7000E+03   1.1828E+01   9.7868E-02  -2.5413E+01   4.7709E+03
+    28    2.8000E+03   2.6679E-03   2.2075E-05  -8.2814E+01   4.8912E+03
+    29    2.9000E+03   2.1259E+01   1.7589E-01   9.0844E+01   5.2425E+03
+    30    3.0000E+03   3.0974E-03   2.5628E-05  -7.9678E+01   5.2496E+03
+
+
+     TOTAL HARMONIC DISTORTION =   9.2881E+01 PERCENT
+
+
+          JOB CONCLUDED
+
+**** 11/15/21 19:14:11 ******* PSpice 17.4.0 (Nov 2018) ******* ID# 0 ********
+
+ Proyecto_Laboratorio_Electronica_Potencia
+
+
+ ****     JOB STATISTICS SUMMARY
+
+
+******************************************************************************
+
+
+
+  License check-out time            =       64.77
+  Total job time (using Solver 1)   =        5.61
+

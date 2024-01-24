@@ -1,0 +1,158 @@
+
+**** 11/05/21 21:24:25 ****** PSpice Lite (October 2012) ****** ID# 10813 ****
+
+ proyecto de Electronica de potencia
+
+
+ ****     CIRCUIT DESCRIPTION
+
+
+******************************************************************************
+
+
+
+
+
+****** Bienvenido al cicloconvertidor de 3 fases a 1 fase ******
+
+
+
+**** suministre los datos requeridos a continuacion ****
+
+****Parametros de entrada definidos por el usuario****
+* Tensión de alimentacion de fase: 120v rms *
+.param Vin={120} 
+* Frecuencia de entrada: 120<Fin<400 * 
+.param Fin={60}     
+
+****Parametros de salida definidos por el usuario****
+ * Frecuencia de salida 30<Fout<100*
+.param Fout={10}   
+* Angulo de disparo: 0<alfa<120* 
+.param alfa={52.823}
+* Resistencia que se quiere alimentar *    
+.param r={10}       
+
+
+
+
+
+*****Parametros internos del codigo (no tocar)
+.param vp={Vin*sqrt(2)}
+.param del={1/(6*Fin)}
+.param pw={1/(2.9*Fin)}
+.param periodo={1/Fin}
+.param periodo_out={1/Fout}
+.param pw_out={0.5*periodo_out}
+*
+Van 1 0 Sin(0 {vp} {Fin} 0 0 30)
+Vbn 2 0 Sin(0 {vp} {Fin} 0 0 -90)
+Vcn 3 0 Sin(0 {vp} {Fin} 0 0 -210)
+********************                            *etapa de potencia P*
+s1p 1p 1 25 0 smod
+d1p 1p 5 dmod
+s4p 1 4p 26 0 smod
+d4p 4 4p dmod
+s3p 3p 2 27 0 smod
+d3p 3p 5 dmod
+s6p 6p 2 28 0 smod
+d6p 4 6p dmod
+s5p 5p 3 29 0 smod
+d5p 5p 5 dmod
+s2p 2p 3 30 0 smod
+d2p 4 2p dmod
+*********************                           *etapa de potencia N*
+s1n 1 1n 31 0 smod
+d1n 1n 4 dmod
+s4n 1 4n 32 0 smod
+d4n 5 4n dmod
+s3n 2 3n 33 0 smod
+d3n 3n 4 dmod
+s6n 6n 2 34 0 smod
+d6n 5 6n dmod
+s5n 3 5n 35 0 smod
+d5n 5n 4 dmod
+s2n 2n 3 36 0 smod
+d2n 5 2n dmod
+********************
+*
+r 4 5 {r}
+*
+*********************************** *Etapa de Control* *************************************
+
+***************************************************************** *Señales para los SCR*
+
+v1 18 0 pulse(-2 2 {alfa*periodo/360} 0 0 {pw} {periodo})
+v4 19 0 pulse(-2 2 {alfa*periodo/360+3*del} 0 0 {pw} {periodo})
+v3 20 0 pulse(-2 2 {alfa*periodo/360+2*del} 0 0 {pw} {periodo})
+V6 21 0 pulse(-2 2 {alfa*periodo/360+5*del} 0 0 {pw} {periodo})
+v5 22 0 pulse(-2 2 {alfa*periodo/360+4*del} 0 0 {pw} {periodo})
+v2 23 0 pulse(-2 2 {alfa*periodo/360+del} 0 0 {pw} {periodo})
+
+
+***************************************************************** *Señal del multiplexor*
+v7 24 0 pulse(2 -2 0 0 0 {pw_out} {periodo_out})  
+                
+********************************                *Multiplexor de 1 a 2 de 6 cables*
+
+s1 25 18 24 0 smod
+s2 26 19 24 0 smod
+s3 27 20 24 0 smod
+s4 28 21 24 0 smod
+s5 29 22 24 0 smod
+s6 30 23 24 0 smod
+s7 31 18 0 24 smod
+s8 32 19 0 24 smod
+s9 33 20 0 24 smod
+s10 34 21 0 24 smod
+s11 35 22 0 24 smod
+s12 36 23 0 24 smod
+
+********************************                *Resistencias de pull down*
+
+r1 25 0 10000
+r2 26 0 10000
+r3 27 0 10000
+r4 28 0 10000
+r5 29 0 10000
+r6 30 0 10000
+r7 31 0 10000
+r8 32 0 10000
+r9 33 0 10000
+r10 34 0 10000
+r11 35 0 10000
+r12 36 0 10000
+
+
+
+.model smod vswitch (ron=0.01)
+.model dmod d
+.tran .1ms 400ms 0ms .1ms uic
+.probe
+.options nopage nomod nobias itl5=0
+.end
+
+
+          JOB CONCLUDED
+
+
+
+ ****     JOB STATISTICS SUMMARY
+
+
+
+  Total job time (using Solver 1)   =        1.30
+
+**** 11/05/21 21:24:26 ****** PSpice Lite (October 2012) ****** ID# 10813 ****
+
+  
+
+
+ ****     CIRCUIT DESCRIPTION
+
+
+******************************************************************************
+
+
+
+

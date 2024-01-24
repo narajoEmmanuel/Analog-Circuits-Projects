@@ -1,0 +1,13 @@
+Tarea Lab de Potencia 2
+Simulación realizada en: Proteus
+Versión: 8.11
+Fecha: 27/08/2021
+
+Estudiantes:
+Jose Fabio Navarro Naranjo – 2019049626
+Adrián Dittel Retana – 2019007945
+Emmanuel Naranjo Blanco – 2019053605
+
+
+Enlace video:
+https://youtu.be/bXHw7u225PI 

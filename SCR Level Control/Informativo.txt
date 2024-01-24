@@ -1,0 +1,9 @@
+Tarea Lab de Potencia 4
+Simulación realizada en: Proteus
+Versión: 8.11
+Fecha: 29/09/2021
+
+Estudiante:
+
+Emmanuel Naranjo Blanco – 2019053605
+
